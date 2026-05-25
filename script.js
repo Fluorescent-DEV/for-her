@@ -15,7 +15,7 @@ function createPetal() {
 }
 setInterval(createPetal, 300);
 
-// 2. EFEK TABURAN BUNGA MENGIKUTI JARI/CURSOR (TRAIL)
+// 2. EFEK TABURAN BUNGA (TRAIL)
 window.addEventListener('mousemove', (e) => {
   const trail = document.createElement('div');
   trail.className = 'cursor-petal';
@@ -24,111 +24,81 @@ window.addEventListener('mousemove', (e) => {
   document.body.appendChild(trail);
   setTimeout(() => { trail.remove(); }, 800);
 });
-window.addEventListener('touchmove', (e) => {
-  const touch = e.touches[0];
-  const trail = document.createElement('div');
-  trail.className = 'cursor-petal';
-  trail.style.left = touch.clientX + 'px';
-  trail.style.top = touch.clientY + 'px';
-  document.body.appendChild(trail);
-  setTimeout(() => { trail.remove(); }, 800);
-});
 
-// 3. SISTEM INTERAKSI POP-UP MODAL SURAT
+// 3. SISTEM INTERAKSI & LOGIKA MUSIK
 window.addEventListener('DOMContentLoaded', () => {
   const openBtn = document.getElementById('open-popup-btn');
   const closeBtn = document.getElementById('close-popup-btn');
   const overlay = document.getElementById('popup-overlay');
+  const music = document.getElementById('bg-music');
+  const progressBar = document.getElementById('ios-progress');
+  const playBtn = document.getElementById('play-trigger');
 
+  // Popup Logic
   if (openBtn && closeBtn && overlay) {
     openBtn.addEventListener('click', () => { overlay.classList.add('active'); });
     closeBtn.addEventListener('click', () => { overlay.classList.remove('active'); });
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
   }
 
-  // 4. LOGIKA AUDIO AUTO PLAY LOCAL FILE (MUTED BYPASS)
-  const music = document.getElementById('bg-music');
-  const progressBar = document.getElementById('ios-progress');
-  const playBtn = document.getElementById('play-trigger');
-  
-  if (!music || !progressBar || !playBtn) return;
+  // Music Logic (Fixed Sync)
+  if (music && progressBar && playBtn) {
+    music.addEventListener('timeupdate', () => {
+      if (music.duration > 0) {
+        const progress = (music.currentTime / music.duration) * 100;
+        progressBar.style.width = progress + "%";
+      }
+    });
 
-  music.muted = true;
-  music.play().then(() => {
-    playBtn.innerText = "⏸ PAUSE";
-  }).catch(err => console.log("Menunggu bypass interaksi user..."));
+    playBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (music.paused) {
+        music.play();
+        playBtn.innerText = "⏸ PAUSE";
+      } else {
+        music.pause();
+        playBtn.innerText = "▶ PLAY";
+      }
+    });
 
-  music.addEventListener('timeupdate', () => {
-    if (music.duration > 0) {
-      const progressPercent = (music.currentTime / music.duration) * 100;
-      progressBar.style.width = `${progressPercent}%`;
-    }
-  });
-
-  function nyalakanAudio() {
-    music.muted = false;
-    playBtn.innerText = "⏸ PAUSE";
-    window.removeEventListener('click', nyalakanAudio);
-    window.removeEventListener('scroll', nyalakanAudio);
-    window.removeEventListener('touchstart', nyalakanAudio);
+    const startAudio = () => {
+      music.play().then(() => {
+        playBtn.innerText = "⏸ PAUSE";
+        window.removeEventListener('click', startAudio);
+      }).catch(e => console.log("Menunggu interaksi user..."));
+    };
+    window.addEventListener('click', startAudio, { once: true });
   }
-  window.addEventListener('click', nyalakanAudio);
-  window.addEventListener('scroll', nyalakanAudio);
-  window.addEventListener('touchstart', nyalakanAudio);
 
-  playBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); 
-    if (music.paused) {
-      music.muted = false;
-      music.play();
-      playBtn.innerText = "⏸ PAUSE";
-    } else {
-      music.pause();
-      playBtn.innerText = "▶ PLAY";
-    }
-  });
+  // 4. FITUR DEKORASI & HATI (Muncul di bawah judul "A Garden Grown")
+  const footer = document.querySelector('.section-footer');
+  if (footer) {
+    const heartGroup = document.createElement('div');
+    heartGroup.style.textAlign = 'center';
+    heartGroup.style.marginTop = '20px';
+    heartGroup.innerHTML = `
+        <div style="font-size: 30px; letter-spacing: 15px; margin-bottom:10px; opacity:0.5;">☕ 🍛 🧸 ⭐</div>
+        <div id="heart-btn" style="font-size: 45px; cursor: pointer; display:inline-block;">💖</div>
+        <div style="font-size: 12px; font-style: italic; color: #ffb7c5; opacity: 0.8; margin-top:5px;">coba click</div>
+    `;
+    footer.appendChild(heartGroup);
+
+    document.getElementById('heart-btn').onclick = (e) => {
+      const name = document.createElement('div');
+      name.innerText = "Mal"; // GANTI NAMA KAMU DI SINI
+      name.style.position = 'fixed';
+      name.style.left = e.clientX + 'px';
+      name.style.top = e.clientY + 'px';
+      name.style.color = '#ff527b';
+      name.style.fontWeight = 'bold';
+      name.style.fontSize = '25px';
+      name.style.zIndex = '999999';
+      name.style.pointerEvents = 'none';
+      name.style.textShadow = '0 0 10px rgba(255,255,255,0.7)';
+      document.body.appendChild(name);
+      
+      name.animate([{ transform: 'translateY(0px) scale(1)', opacity: 1 }, { transform: 'translateY(-200px) scale(1.5)', opacity: 0 }], 2000)
+          .onfinish = () => name.remove();
+    };
+  }
 });
-
-// 5. TAMBAHAN: DEKORASI & NAMA BERTERBANGAN
-function addDecorations() {
-  const icons = ['☕', '🍛', '🧸', '⭐'];
-  const body = document.body;
-  for (let i = 0; i < 15; i++) {
-    const span = document.createElement('span');
-    span.innerHTML = icons[Math.floor(Math.random() * icons.length)];
-    span.style.position = 'absolute';
-    span.style.fontSize = '24px';
-    span.style.opacity = '0.2';
-    span.style.zIndex = '1';
-    span.style.pointerEvents = 'none';
-    span.style.left = Math.random() * 95 + 'vw';
-    span.style.top = Math.random() * 3000 + 'px'; 
-    body.appendChild(span);
-  }
-}
-
-function showFlyingName(e) {
-  const name = document.createElement('div');
-  name.innerText = "Mal"; // Ganti "Mal" dengan nama panggilanmu
-  name.style.position = 'fixed';
-  name.style.left = e.clientX + 'px';
-  name.style.top = e.clientY + 'px';
-  name.style.color = '#ff527b';
-  name.style.fontWeight = 'bold';
-  name.style.fontSize = '20px';
-  name.style.zIndex = '999999';
-  name.style.pointerEvents = 'none';
-  name.style.textShadow = '0 0 10px rgba(255,255,255,0.5)';
-  document.body.appendChild(name);
-
-  name.animate([
-    { transform: 'translateY(0px)', opacity: 1 },
-    { transform: 'translateY(-150px)', opacity: 0 }
-  ], {
-    duration: 2000,
-    easing: 'ease-out'
-  }).onfinish = () => name.remove();
-}
-
-window.addEventListener('load', addDecorations);
-document.addEventListener('click', showFlyingName);
