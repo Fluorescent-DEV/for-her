@@ -85,7 +85,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('heart-btn').onclick = (e) => {
       const name = document.createElement('div');
-      name.innerText = "Mal"; // GANTI NAMA KAMU DI SINI
+      name.innerText = "Mwahhhh"; // GANTI NAMA KAMU DI SINI
       name.style.position = 'fixed';
       name.style.left = e.clientX + 'px';
       name.style.top = e.clientY + 'px';
