@@ -88,3 +88,47 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// 5. TAMBAHAN: DEKORASI & NAMA BERTERBANGAN
+function addDecorations() {
+  const icons = ['☕', '🍛', '🧸', '⭐'];
+  const body = document.body;
+  for (let i = 0; i < 15; i++) {
+    const span = document.createElement('span');
+    span.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+    span.style.position = 'absolute';
+    span.style.fontSize = '24px';
+    span.style.opacity = '0.2';
+    span.style.zIndex = '1';
+    span.style.pointerEvents = 'none';
+    span.style.left = Math.random() * 95 + 'vw';
+    span.style.top = Math.random() * 3000 + 'px'; 
+    body.appendChild(span);
+  }
+}
+
+function showFlyingName(e) {
+  const name = document.createElement('div');
+  name.innerText = "Mal"; // Ganti "Mal" dengan nama panggilanmu
+  name.style.position = 'fixed';
+  name.style.left = e.clientX + 'px';
+  name.style.top = e.clientY + 'px';
+  name.style.color = '#ff527b';
+  name.style.fontWeight = 'bold';
+  name.style.fontSize = '20px';
+  name.style.zIndex = '999999';
+  name.style.pointerEvents = 'none';
+  name.style.textShadow = '0 0 10px rgba(255,255,255,0.5)';
+  document.body.appendChild(name);
+
+  name.animate([
+    { transform: 'translateY(0px)', opacity: 1 },
+    { transform: 'translateY(-150px)', opacity: 0 }
+  ], {
+    duration: 2000,
+    easing: 'ease-out'
+  }).onfinish = () => name.remove();
+}
+
+window.addEventListener('load', addDecorations);
+document.addEventListener('click', showFlyingName);
